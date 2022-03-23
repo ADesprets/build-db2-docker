@@ -2,9 +2,9 @@
 
 whoami
 
-echo "set password for db2inst1 to never expire"
+echo "set password for db2inst1 to never expire";
 passwd -x 9999 db2inst1
-sudo -i -u db2inst1 bash -c '/opt/ibm/db2/V11.5/bin/db2 CONNECT TO orderdb && /opt/ibm/db2/V11.5/bin/db2 -stvf /var/sql/createOrderDB.sql -z create.log'
-sudo -i -u db2inst1 bash -c '/opt/ibm/db2/V11.5/bin/db2 CONNECT TO orderdb && /opt/ibm/db2/V11.5/bin/db2 -stvf /var/sql/orderdb-data.sql -z populate.log'
-#/opt/ibm/db2/V11.5/bin/db2 -stvf createOrderDB.sql -z create.log
-#/opt/ibm/db2/V11.5/bin/db2 -svft orderdb-data.sql -z populate.log
+sudo -i -u db2inst1 bash -c '/opt/ibm/db2/V11.5/bin/db2 UPDATE DBM CFG USING SPM_NAME mydb_spm'
+sudo -i -u db2inst1 bash -c '/opt/ibm/db2/V11.5/bin/db2 CONNECT TO mydb'
+sudo -i -u db2inst1 bash -c '/opt/ibm/db2/V11.5/bin/db2 CONNECT TO mydb && /opt/ibm/db2/V11.5/bin/db2 -stvf /var/custom/sql/createTables.sql -z create-tables.log'
+sudo -i -u db2inst1 bash -c '/opt/ibm/db2/V11.5/bin/db2 CONNECT TO mydb && /opt/ibm/db2/V11.5/bin/db2 -stvf /var/custom/sql/mydb-data.sql -z populate-tables.log'
