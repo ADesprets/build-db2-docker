@@ -1,9 +1,12 @@
 # set up DB2 database "mydb" in docker.
 I have extracted from the repository openshift-workshop-was (https://github.com/IBM/openshift-workshop-was) this readme. Intention is to update and just focus here on the docker image creation for the database.
 
-I have updated the version of DB2 to include the log4J correction.
-I added this line to make sure the the SPM name is not the same as the database:  db2 update dbm cfg using SPM_NAME mydb_spm
-I also changed the script that it used to populate the Database.
+I have made the following changes:
+* Updated the version of DB2 to include the log4J correction (using the DB2 11.5.7.0 version).
+* Added this line to make sure the the SPM name is not the same as the database:  `db2 update dbm cfg using SPM_NAME mydb_spm`
+* Changed the script that it used to populate the Database (to avoid execute non-executable file).
+
+
 In the DB2 image there is the following code:
 
 ```
@@ -52,17 +55,17 @@ The command creates the mydb database, sets the db2inst1 password, and the scrip
 docker run -itd --name myapp-mydb --privileged=true --network=myappNetwork --hostname=mydb -p 50000:50000 -e DBNAME=mydb -e LICENSE=accept -e DB2INST1_PASSWORD=db2inst1 -v /home/desprets/mydb/database:/database myapp-mydb:latest
 ```
 
-## Repeat checking of the db2 logs to ensure DB is setup and running. 
+## Check the container logs to ensure DB is setup and running. 
 
-### Note: The .sql files and the .sh files run. The .swl files will show errors, but the PopulateDB.sh script should run, and successful create the table and populate the DB, using the same .sql files. 
 ```
-docker logs myapp-mydb
+docker logs myapp-mydb -f
 ```
 
 ### FYI: The docker run command invokes the populateDB.sh inside of the container
-I have added the following commands to set the db2inst1 user password to never expire. Run docker logs myapp-mydb command to see the output that it was successful. 
+You should see the following commande being executed in the log.
+ 
 ```
-echo "set password for db2inst1 to never expire"
+echo "set password for db2inst1 so it never expires"
 passwd -x 9999 db2inst1
 ```
  
@@ -82,7 +85,6 @@ docker stop myapp-mydb
 ```
 docker exec -it myapp-mydb /bin/sh
 ```
-
 or 
 docker exec -ti mydb2 bash -c "su - ${DB2INSTANCE}" where ${DB2INSTANCE} is either db2inst1 or the name chosen via the DB2INSTANCE variable.
 
@@ -94,8 +96,6 @@ db2 list database directory
 db2 connect to mydb
 db2 list tables
 ```
-
-db2 catalog database mydb on /database/data/mydb
 
 ### Check data
 ```
@@ -126,18 +126,19 @@ docker stop myapp-mydb
 
 ## Additional useful commands in DB2
 
-db2 get database manager configuration
+Get the configuration of DB2: `db2 get database manager configuration`
 
-To change a configuration
-db2 update dbm cfg using INSTANCE_MEMORY AUTOMATIC
+To change a configuration: `db2 update dbm cfg using INSTANCE_MEMORY AUTOMATIC`
 
-db2 ? options
+See what options are available: `db2 ? options`
 
-db2licm -l
+Check the version of DB2: `db2licm -l`
 
-db2ilist
+Get the instances: `db2ilist`
 
-db2pd -
+Check the status and ow long it was started: `db2pd -`
+
+Catalog a databae if problem: `db2 catalog database mydb on /database/data/mydb`
 
 To see the advanced configuration, you can check the url: https://hub.docker.com/r/ibmcom/db2
 
